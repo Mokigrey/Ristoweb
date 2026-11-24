@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { saveDraftTemplate } from "./actions";
 
+const descriptions: Record<string, string> = {
+  editoriale: "Titoli ampi, presentazione in evidenza e foto affiancata.",
+  galleria: "Foto di copertina a tutta larghezza e galleria in apertura.",
+};
+
 export default function TemplateForm({ tenantId, previewPath, current, initial, templates }: {
   tenantId: string;
   previewPath: string;
@@ -34,7 +39,10 @@ export default function TemplateForm({ tenantId, previewPath, current, initial, 
                 type="radio" name="template_key" value={template} checked={selected === template}
                 onChange={() => setSelected(template)}
               />
-              <span className="capitalize">{template}</span>
+              <span className="grow">
+                <span className="block capitalize">{template}</span>
+                {descriptions[template] && <span className="mt-1 block text-sm text-gray-600">{descriptions[template]}</span>}
+              </span>
               {template === current && <span className="text-sm text-gray-600">In uso</span>}
             </label>
           ))}
