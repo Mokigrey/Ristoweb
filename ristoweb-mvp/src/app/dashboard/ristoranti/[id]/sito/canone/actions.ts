@@ -27,5 +27,6 @@ export async function saveMonthlyPrice(tenantId: string, priceKey: string, formD
   if (error) return { success: false, message: "Impossibile salvare la tariffa." };
 
   revalidatePath("/dashboard/ristoranti/[id]/sito/canone", "page");
+  revalidatePath("/dashboard/ristoranti/[id]/sito/piano", "page");
   return { success: true, message: cents === null ? "Tariffa impostata come da definire." : "Tariffa salvata." };
 }

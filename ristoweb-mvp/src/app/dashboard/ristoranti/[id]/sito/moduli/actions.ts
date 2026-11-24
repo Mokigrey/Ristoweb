@@ -6,7 +6,7 @@ import { getSiteAccess } from "@/lib/supabase/site-access";
 
 function refreshModules(tenantId: string) {
   const base = `/dashboard/ristoranti/${tenantId}/sito`;
-  for (const suffix of ["", "/moduli", "/canone", "/menu", "/anteprima"]) revalidatePath(base + suffix);
+  for (const suffix of ["", "/moduli", "/canone", "/menu", "/anteprima", "/piano"]) revalidatePath(base + suffix);
 }
 
 export async function setRemovalAtRenewal(tenantId: string, moduleKey: string, schedule: boolean) {

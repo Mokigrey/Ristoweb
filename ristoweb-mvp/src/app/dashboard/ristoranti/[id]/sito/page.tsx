@@ -21,7 +21,7 @@ export default async function GestioneSitoPage({
   // Recupera il ristorante
   const { data: ristorante, error } = await supabase
     .from("tenants")
-    .select("id, name, slug, business_type, template_key, is_published")
+    .select("id, name, slug, business_type, template_key, is_published, plan_type, subscription_status")
     .eq("id", id)
     .maybeSingle();
 
@@ -46,6 +46,7 @@ export default async function GestioneSitoPage({
 
   const isPlatformAdmin = access === "platform";
   const mostraMenu = await isSiteModuleEnabled(supabase, id, digitalMenuModule);
+  const isDraftPlan = !ristorante.is_published && ristorante.plan_type === "subscription" && ristorante.subscription_status === "trialing";
 
   const sezioni = [
     {
@@ -82,6 +83,12 @@ export default async function GestioneSitoPage({
       titolo: "Moduli della vetrina",
       descrizione: "Verifica i moduli disponibili e quelli attivi.",
       percorso: `/dashboard/ristoranti/${id}/sito/moduli`,
+    },
+    {
+      titolo: "Configura il piano",
+      descrizione: "Scegli i moduli da includere e consulta la stima del canone.",
+      percorso: `/dashboard/ristoranti/${id}/sito/piano`,
+      visibile: isDraftPlan,
     },
     {
       titolo: "Canone mensile",

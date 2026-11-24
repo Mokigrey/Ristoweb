@@ -2,12 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteAccess } from "@/lib/supabase/site-access";
+import { estimatedMonthlyTotal, formatCents } from "@/lib/billing/estimate";
 import { formatBillingDate, todayInRome } from "@/lib/supabase/billing-cycle";
 import CycleForm from "./cycle-form";
 import PriceField from "./price-field";
-
-const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
-const formatCents = (amount: number) => euro.format(amount / 100);
 
 export default async function CanonePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,9 +35,7 @@ export default async function CanonePage({ params }: { params: Promise<{ id: str
     ...catalog.data.map(({ module_key, label }) => ({ key: module_key, label })),
   ].map((line) => ({ ...line, amount: priceMap.get(line.key) ?? null }));
   const subtotal = tariffLines.filter((line) => line.key === "base" || activeKeys.has(line.key));
-  const totalOf = (lines: typeof subtotal) => lines.every(({ amount }) => amount !== null)
-    ? formatCents(lines.reduce((sum, { amount }) => sum + (amount ?? 0), 0))
-    : "In attesa del listino";
+  const totalOf = (lines: typeof subtotal) => estimatedMonthlyTotal(lines.map(({ amount }) => amount));
   const showsNextTotal = subtotal.some(({ key }) => scheduled.has(key));
   const isSubscription = tenant.data.plan_type === "subscription";
 
