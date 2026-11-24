@@ -24,7 +24,13 @@ Per inviare conferme a destinatari esterni all’organizzazione Supabase serve u
 - Selezione dei moduli e stima del piano prima del checkout. Le scelte in bozza sono separate dai moduli attivi.
 - Menu digitale opzionale, stima del canone e disattivazioni programmate al rinnovo.
 
-I rinnovi vengono registrati dall’amministratore. Checkout, pagamenti effettivi e pubblicazione automatica restano da integrare.
+I rinnovi vengono registrati dall’amministratore. L’attivazione del primo abbonamento è predisposta nel database. Resta da collegare il checkout e il servizio che verifica la conferma del pagamento.
+
+## Attivazione dopo il primo pagamento
+
+Il server che gestisce il pagamento deve associare la sessione del fornitore al riepilogo salvato. Dopo aver verificato la conferma con il fornitore, chiama `selfweb_activate_paid_checkout` con la chiave riservata al server. Passa attività e riepilogo associati, riferimenti del pagamento e dell’abbonamento, importo in centesimi, valuta e date del primo ciclo. La funzione confronta importo e valuta con il riepilogo salvato.
+
+`activated` e `already_activated` indicano che l’attivazione è stata registrata. Conserva gli altri esiti per la riconciliazione con il fornitore. L’attivazione registra il ciclo, abilita i moduli acquistati e pubblica la vetrina nella stessa transazione.
 
 ## Indirizzi pubblici delle vetrine
 
