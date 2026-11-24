@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  if (pathname.startsWith("/vetrine/") || pathname.startsWith(publicMediaPrefix)) return;
+  if (pathname.startsWith("/vetrine/") || pathname.startsWith(publicMediaPrefix) || pathname === "/api/pagamenti/stripe-test") return;
   if (/\.(?:svg|png|jpg|jpeg|gif|webp)$/.test(pathname)) return;
   return await updateSession(request);
 }

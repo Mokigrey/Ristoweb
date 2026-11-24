@@ -32,6 +32,12 @@ Il server che gestisce il pagamento deve associare la sessione del fornitore al 
 
 `activated` e `already_activated` indicano che l’attivazione è stata registrata. Conserva gli altri esiti per la riconciliazione con il fornitore. L’attivazione registra il ciclo, abilita i moduli acquistati e pubblica la vetrina nella stessa transazione.
 
+## Conferme Stripe in ambiente di test
+
+Configura un endpoint Stripe con eventi snapshot `checkout.session.completed` e `checkout.session.async_payment_succeeded` verso `/api/pagamenti/stripe-test`. Imposta le variabili `SELFWEB_STRIPE_TEST_*` con credenziali Stripe di test e una chiave server del progetto Supabase di test. La creazione della sessione deve passare il riepilogo come `client_reference_id` e i metadati `selfweb_flow=initial_checkout`, `selfweb_tenant_id` e `selfweb_quote_id`.
+
+L’endpoint verifica la firma sul messaggio originale, rilegge da Stripe la sessione e la prima fattura pagata in EUR e applica l’attivazione nel database di test. La creazione della sessione di checkout resta da integrare.
+
 ## Indirizzi pubblici delle vetrine
 
 Le vetrine pubblicate sono raggiungibili su `/vetrine/<slug>`. Per usare anche i sottodomini, imposta `SELFWEB_SHOWCASE_DOMAIN` con un dominio base dedicato, ad esempio `siti.example.com`, senza protocollo o percorso. L’indirizzo canonico diventa `https://<slug>.siti.example.com/`.
