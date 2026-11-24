@@ -55,7 +55,7 @@ function webLink(value: unknown) {
 }
 
 export default function SitePreview({
-  name, template, settings, appearance, menu, images,
+  name, template, settings, appearance, menu, images, bookingHref,
 }: {
   name: string;
   template: string;
@@ -63,6 +63,7 @@ export default function SitePreview({
   appearance: SiteAppearance;
   menu: MenuCategory[];
   images: SiteImages;
+  bookingHref?: string;
 }) {
   const openingHours = record(settings?.opening_hours);
   const hours = (appearance.show_opening_hours ? days : []).flatMap(([key, label]) => {
@@ -105,11 +106,12 @@ export default function SitePreview({
           {images.logo && <img src={images.logo} alt="" />}
           <span>{name}</span>
         </div>
-        {(menu.length > 0 || images.gallery.length > 0 || showContact) && (
+        {(menu.length > 0 || images.gallery.length > 0 || showContact || bookingHref) && (
           <nav aria-label="Sezioni del sito">
             {menu.length > 0 && <a href="#menu">Menu</a>}
             {images.gallery.length > 0 && <a href="#galleria">Galleria</a>}
             {showContact && <a href="#contatti">{contactTitle}</a>}
+            {bookingHref && <a href={bookingHref}>Prenota</a>}
           </nav>
         )}
       </header>
@@ -118,7 +120,8 @@ export default function SitePreview({
         <div className={styles.heroContent}>
           <h1>{name}</h1>
           {settings?.tagline && <p>{settings.tagline}</p>}
-          {showContact && <a className={styles.cta} href="#contatti">{contactTitle}</a>}
+          {bookingHref && <a className={styles.cta} href={bookingHref}>Prenota un appuntamento</a>}
+          {!bookingHref && showContact && <a className={styles.cta} href="#contatti">{contactTitle}</a>}
         </div>
       </div>
       {galleryFirst && gallery}

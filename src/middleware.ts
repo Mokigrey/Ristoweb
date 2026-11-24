@@ -9,6 +9,11 @@ export async function middleware(request: NextRequest) {
   const showcase = matchShowcaseHost(request.headers.get("host") ?? request.nextUrl.host);
   if (showcase) {
     const canRead = request.method === "GET" || request.method === "HEAD";
+    if (showcase.slug && pathname === "/prenota" && (canRead || request.method === "POST")) {
+      const destination = request.nextUrl.clone();
+      destination.pathname = showcasePath(showcase.slug) + "/prenota";
+      return NextResponse.rewrite(destination);
+    }
     if (showcase.slug && canRead) {
       if (pathname.startsWith(publicMediaPrefix)) return NextResponse.next();
       if (pathname === "/") {

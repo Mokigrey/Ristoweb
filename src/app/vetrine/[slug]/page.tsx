@@ -5,7 +5,8 @@ import SitePreview from "@/app/dashboard/ristoranti/[id]/sito/anteprima/site-pre
 import { defaultAppearance } from "@/app/dashboard/ristoranti/[id]/sito/aspetto/appearance";
 import { createPublicClient } from "@/lib/supabase/public-client";
 import { publicMediaUrl } from "@/lib/public-media";
-import { isShowcaseSlug, showcaseSubdomainUrl } from "@/lib/showcase-address";
+import { isShowcaseSlug, showcasePath, showcaseSubdomainUrl } from "@/lib/showcase-address";
+import { loadPublicBookingCalendar } from "@/lib/public-bookings";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PublicSitePage({ params }: PageProps) {
   const { slug } = await params;
   const site = await loadPublishedSite(slug);
+  const calendar = await loadPublicBookingCalendar(slug, null, false).catch(() => null);
+  const canonical = showcaseSubdomainUrl(slug);
+  const bookingPath = canonical ? new URL("prenota", canonical).href : showcasePath(slug) + "/prenota";
   const images = {
     logo: publicMediaUrl(site.logoPath),
     hero: publicMediaUrl(site.heroPath),
@@ -60,6 +64,7 @@ export default async function PublicSitePage({ params }: PageProps) {
         appearance={site.appearance ?? defaultAppearance}
         menu={site.menu}
         images={images}
+        bookingHref={calendar ? bookingPath : undefined}
       />
     </main>
   );

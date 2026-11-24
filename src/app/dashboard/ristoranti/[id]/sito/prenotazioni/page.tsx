@@ -6,6 +6,7 @@ import { bookingsModule, isSiteModuleEnabled } from "@/lib/supabase/site-modules
 import BookingControls from "./booking-controls";
 import { bookingStatuses, isBookingStatus } from "./booking-status";
 import ManualBookingForm from "./manual-booking-form";
+import BookingRulesForm from "./booking-rules-form";
 
 const perPage = 20;
 const bookingDate = new Intl.DateTimeFormat("it-IT", {
@@ -32,11 +33,16 @@ export default async function BookingsPage({ params, searchParams }: {
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= Math.floor(2_147_483_647 / perPage)
     ? requestedPage : 1;
   const start = (page - 1) * perPage;
-  const { data, error, count } = await supabase.from("bookings")
-    .select("id, customer_name, customer_phone, customer_email, party_size, requested_at, notes, management_note, status", { count: "exact" })
-    .eq("tenant_id", id).eq("status", status)
-    .order("requested_at", { ascending: status === "pending" }).order("id").range(start, start + perPage - 1);
-  if (error || count === null) throw new Error("Impossibile caricare le prenotazioni.");
+  const [list, config] = await Promise.all([
+    supabase.from("bookings")
+      .select("id, customer_name, customer_phone, customer_email, party_size, requested_at, notes, management_note, status, slot_ends_at", { count: "exact" })
+      .eq("tenant_id", id).eq("status", status)
+      .order("requested_at", { ascending: status === "pending" }).order("id").range(start, start + perPage - 1),
+    supabase.from("booking_rules").select("enabled, duration_minutes, notice_minutes, horizon_days, max_party_size")
+      .eq("tenant_id", id).maybeSingle(),
+  ]);
+  const { data, count } = list;
+  if (list.error || config.error || count === null) throw new Error("Impossibile caricare le prenotazioni.");
 
   const lastPage = Math.max(1, Math.ceil(count / perPage));
   if (page > lastPage) redirect(`${queuePath}?stato=${status}&pagina=${lastPage}`);
@@ -46,6 +52,12 @@ export default async function BookingsPage({ params, searchParams }: {
       <div className="mx-auto max-w-4xl space-y-6">
         <Link href={sitePath} className="text-emerald-800 hover:underline">← Gestione sito</Link>
         <h1 className="text-3xl font-bold text-gray-900">Prenotazioni</h1>
+        <details className="rounded-xl border border-gray-200 bg-white p-5">
+          <summary className="cursor-pointer font-semibold text-emerald-900">
+            Appuntamenti online · {config.data?.enabled ? "Attivi" : "Disattivati"}
+          </summary>
+          <BookingRulesForm tenantId={id} hoursHref={sitePath + "/orari"} rules={config.data} />
+        </details>
         <details className="rounded-xl border border-gray-200 bg-white p-5">
           <summary className="cursor-pointer font-semibold text-emerald-900">Registra una richiesta</summary>
           <ManualBookingForm tenantId={id} />
@@ -73,6 +85,7 @@ export default async function BookingsPage({ params, searchParams }: {
                   </time>
                 </div>
                 <p className="mt-1 text-sm text-gray-700">{booking.party_size} {booking.party_size === 1 ? "persona" : "persone"}</p>
+                {booking.slot_ends_at && <p className="mt-1 text-sm text-emerald-900">Prenotata online</p>}
                 <p className="mt-2 break-words text-sm text-gray-700">
                   {booking.customer_phone}{booking.customer_email && ` · ${booking.customer_email}`}
                 </p>

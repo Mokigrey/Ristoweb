@@ -57,7 +57,31 @@ export async function updateBookingStatus(
     p_new_status: next,
   });
   revalidatePath(bookingsPath(tenantId));
+  if (error?.code === "23P01") {
+    return { success: false, message: "Non puoi confermare la richiesta. C’è già un appuntamento a quell’ora." };
+  }
   return !error && data === true
     ? { success: true, message: "Stato aggiornato." }
     : { success: false, message: "Impossibile aggiornare la richiesta. Verifica lo stato corrente." };
+}
+
+export async function saveBookingRules(tenantId: string, form: FormData) {
+  const duration_minutes = Number(form.get("duration_minutes"));
+  const notice_minutes = Number(form.get("notice_minutes"));
+  const horizon_days = Number(form.get("horizon_days"));
+  const max_party_size = Number(form.get("max_party_size"));
+  if (![15, 30, 45, 60, 90, 120].includes(duration_minutes)
+    || ![0, 60, 120, 240, 1440].includes(notice_minutes) || ![7, 14, 30, 60].includes(horizon_days)
+    || !Number.isInteger(max_party_size) || max_party_size < 1 || max_party_size > 30) {
+    return { success: false, message: "Controlla le impostazioni della prenotazione." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("booking_rules").upsert({
+    tenant_id: tenantId,
+    enabled: form.get("enabled") === "on",
+    duration_minutes, notice_minutes, horizon_days, max_party_size,
+  }).select("tenant_id").single();
+  if (error || !data) return { success: false, message: "Impossibile salvare le impostazioni." };
+  revalidatePath(bookingsPath(tenantId));
+  return { success: true, message: "Impostazioni salvate." };
 }
