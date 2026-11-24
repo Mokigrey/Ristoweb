@@ -4,6 +4,7 @@ import { digitalMenuModule, isSiteModuleEnabled } from "@/lib/supabase/site-modu
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { showcasePath, showcaseSubdomainUrl } from "@/lib/showcase-address";
 import { sectorLabel } from "../../site-catalog";
 import { defaultAppearance } from "./aspetto/appearance";
 import DraftSetup from "./draft-setup";
@@ -140,7 +141,7 @@ export default async function GestioneSitoPage({
                 Apri anteprima
               </Link>
               {ristorante.is_published && (
-                <Link href={`/vetrine/${encodeURIComponent(ristorante.slug)}`} className="rounded-lg border border-emerald-800 px-5 py-3 font-medium text-emerald-800">
+                <Link href={showcaseSubdomainUrl(ristorante.slug) ?? showcasePath(ristorante.slug)} className="rounded-lg border border-emerald-800 px-5 py-3 font-medium text-emerald-800">
                   Apri la vetrina pubblica
                 </Link>
               )}

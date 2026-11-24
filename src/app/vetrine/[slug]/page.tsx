@@ -5,6 +5,7 @@ import SitePreview from "@/app/dashboard/ristoranti/[id]/sito/anteprima/site-pre
 import { defaultAppearance } from "@/app/dashboard/ristoranti/[id]/sito/aspetto/appearance";
 import { createPublicClient } from "@/lib/supabase/public-client";
 import { publicMediaUrl } from "@/lib/public-media";
+import { isShowcaseSlug, showcaseSubdomainUrl } from "@/lib/showcase-address";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ type PublishedSite = Pick<PreviewProps, "name" | "template" | "settings" | "menu
 };
 
 const loadPublishedSite = cache(async (slug: string): Promise<PublishedSite> => {
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 80) notFound();
+  if (!isShowcaseSlug(slug)) notFound();
   const client = createPublicClient();
   const { data, error } = await client.rpc("selfweb_public_site", { p_slug: slug });
   if (error) throw new Error("Impossibile caricare la vetrina.");
@@ -30,9 +31,11 @@ type PageProps = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const site = await loadPublishedSite(slug);
+  const canonical = showcaseSubdomainUrl(slug);
   return {
     title: site.name,
     description: site.settings?.tagline || site.settings?.description || `Vetrina di ${site.name}`,
+    alternates: canonical ? { canonical } : undefined,
   };
 }
 
