@@ -27,7 +27,12 @@ export default async function ClientePage() {
       <div className="mx-auto max-w-5xl">
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold text-gray-900">I tuoi siti</h1>
-          <SignOutButton />
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/cliente/nuovo" className="rounded-lg bg-emerald-700 px-4 py-2 font-medium text-white hover:bg-emerald-800">
+              Crea una vetrina
+            </Link>
+            <SignOutButton />
+          </div>
         </header>
         {sites.length ? (
           <ul className="grid gap-4 sm:grid-cols-2">
@@ -50,7 +55,7 @@ export default async function ClientePage() {
           </ul>
         ) : (
           <p className="rounded-xl border border-gray-200 bg-white p-5">
-            Il tuo account non è ancora associato a un sito. Contatta chi ti ha invitato per ottenere accesso.
+            Qui troverai le tue vetrine. Crea la prima bozza per iniziare.
           </p>
         )}
       </div>

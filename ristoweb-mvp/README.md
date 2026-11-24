@@ -14,6 +14,7 @@ Piattaforma Next.js e Supabase per configurare e gestire vetrine di attività di
 - Creazione e modifica di attività con scelta guidata di settore e template.
 - Gestione della vetrina, anteprima privata, immagini, palette e sezioni.
 - Pannello cliente limitato alle attività assegnate.
+- Creazione autonoma di una vetrina in bozza da un account autenticato.
 - Menu digitale opzionale, stima del canone e disattivazioni programmate al rinnovo.
 
-I rinnovi vengono registrati dall’amministratore. Checkout, pagamenti effettivi e pubblicazione automatica restano da integrare.
+I rinnovi vengono registrati dall’amministratore. Registrazione autonoma, checkout, pagamenti effettivi e pubblicazione automatica restano da integrare.
