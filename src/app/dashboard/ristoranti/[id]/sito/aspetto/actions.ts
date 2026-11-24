@@ -5,6 +5,32 @@ import { getSiteAccess } from "@/lib/supabase/site-access";
 import { createClient } from "@/lib/supabase/server";
 import { isPaletteKey, type SiteAppearance } from "./appearance";
 
+export async function saveDraftTemplate(tenantId: string, formData: FormData) {
+  const template = formData.get("template_key");
+  if (typeof template !== "string" || !template) {
+    return { success: false, message: "Scegli un template disponibile." };
+  }
+
+  const supabase = await createClient();
+  const access = await getSiteAccess(supabase, tenantId);
+  if (access === "signed-out" || access === "denied") {
+    return { success: false, message: "Non puoi modificare il template di questa vetrina." };
+  }
+
+  const { data, error } = await supabase.rpc("selfweb_set_draft_template", {
+    p_tenant_id: tenantId,
+    p_template_key: template,
+  });
+  if (error || data !== true) {
+    return { success: false, message: "Impossibile salvare il template. Controlla che la vetrina sia in bozza e riprova." };
+  }
+  const sitePath = `/dashboard/ristoranti/${tenantId}/sito`;
+  revalidatePath(sitePath);
+  revalidatePath(sitePath + "/aspetto");
+  revalidatePath(sitePath + "/anteprima");
+  return { success: true, message: "Template salvato nella bozza." };
+}
+
 export async function saveSiteAppearance(tenantId: string, formData: FormData) {
   const supabase = await createClient();
   const access = await getSiteAccess(supabase, tenantId);
