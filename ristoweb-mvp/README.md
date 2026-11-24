@@ -1,35 +1,19 @@
-# RistoWeb MVP 1.0
+# Selfweb
 
-Starter tecnico per una piattaforma multi-tenant di siti web per ristoranti e pizzerie.
+Piattaforma Next.js e Supabase per configurare e gestire vetrine di attività di settori diversi. Il pannello distingue l’amministrazione della piattaforma dai gestori delle singole attività.
 
-## Stack
-- Next.js (App Router) + TypeScript
-- Tailwind CSS
-- Supabase: PostgreSQL, Auth e Storage
-- GitHub per versionamento
-- Vercel per il primo deployment
+## Avvio
 
-## Stato
-Questo pacchetto è lo scheletro iniziale: contiene specifica, schema SQL iniziale e una pagina di avvio. Non è ancora un prodotto pronto per clienti o produzione.
+1. Usa un progetto Supabase di sviluppo. Configura la CLI Supabase e applica le migrazioni in `supabase/migrations` in ordine. Per un progetto già popolato, confronta lo schema e lo storico delle migrazioni prima di procedere.
+2. Copia `.env.example` in `.env.local`. Inserisci l’URL del progetto e la chiave pubblicabile. Le credenziali amministrative rimangono fuori dall’applicazione.
+3. Con Node.js e pnpm disponibili, esegui `pnpm install --frozen-lockfile` e `pnpm dev`.
+4. Apri `http://localhost:3000/login`. Gli account vengono creati con Supabase Auth e associati a `platform_members` per l’amministrazione o a `tenant_members` per la gestione di un’attività.
 
-## Avvio locale
-Richiede Node.js LTS e un progetto Supabase.
+## Funzionalità collaudate
 
-1. `npm install`
-2. Copiare `.env.example` in `.env.local` e inserire le credenziali Supabase.
-3. `npm run dev`
-4. Aprire `http://localhost:3000`.
+- Creazione e modifica di attività con scelta guidata di settore e template.
+- Gestione della vetrina, anteprima privata, immagini, palette e sezioni.
+- Pannello cliente limitato alle attività assegnate.
+- Menu digitale opzionale, stima del canone e disattivazioni programmate al rinnovo.
 
-## Prossimi passaggi
-1. Configurare Supabase e applicare la migration SQL.
-2. Implementare login e ruoli (`platform_admin`, `tenant_admin`, `tenant_editor`).
-3. Implementare risoluzione del sito tramite dominio.
-4. Implementare dashboard e CRUD contenuti.
-5. Implementare richieste prenotazione e notifiche.
-6. Aggiungere i tre template.
-
-## Decisioni da non rimandare
-- Dominio principale della piattaforma e strategia domini clienti.
-- Provider email transazionale.
-- Regole di retention, backup, privacy e trattamento dati.
-- Contratto licenza/abbonamento e procedura di esportazione.
+I rinnovi vengono registrati dall’amministratore. Checkout, pagamenti effettivi e pubblicazione automatica restano da integrare.
