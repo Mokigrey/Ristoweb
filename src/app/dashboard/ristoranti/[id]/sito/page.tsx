@@ -135,12 +135,16 @@ export default async function GestioneSitoPage({
             {ristorante.name}
           </p>
           {!isDraftPlan && (
-            <Link
-              href={sitePath + "/anteprima"}
-              className="mt-5 inline-flex rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white hover:bg-emerald-800"
-            >
-              Apri anteprima
-            </Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href={sitePath + "/anteprima"} className="rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white hover:bg-emerald-800">
+                Apri anteprima
+              </Link>
+              {ristorante.is_published && (
+                <Link href={`/vetrine/${encodeURIComponent(ristorante.slug)}`} className="rounded-lg border border-emerald-800 px-5 py-3 font-medium text-emerald-800">
+                  Apri la vetrina pubblica
+                </Link>
+              )}
+            </div>
           )}
         </div>
 
