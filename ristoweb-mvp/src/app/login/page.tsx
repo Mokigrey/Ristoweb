@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -86,7 +87,7 @@ export default function LoginPage() {
         className="w-full max-w-md bg-white rounded-xl shadow p-8 space-y-5"
       >
         <h1 className="text-3xl font-bold text-gray-900">
-          RistoWeb
+          Selfweb
         </h1>
 
         <p className="text-gray-600">
@@ -157,6 +158,10 @@ export default function LoginPage() {
         >
           Password dimenticata?
         </button>
+        <p className="text-center text-sm text-gray-600">
+          Non hai ancora un account?{" "}
+          <Link href="/registrati" className="font-medium text-emerald-800 hover:underline">Registrati</Link>
+        </p>
       </form>
     </main>
   );
