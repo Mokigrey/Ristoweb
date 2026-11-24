@@ -2,22 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
+import type { BookingConfirmationMode } from "@/lib/public-bookings";
 import { reserveVisitorSlot } from "./actions";
 
 const hour = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" });
 const appointment = new Intl.DateTimeFormat("it-IT", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Rome" });
 const inputStyle = "mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal text-gray-900";
 
-export default function VisitorBookingForm({ slug, slots, maxPartySize }: {
+export default function VisitorBookingForm({ slug, slots, maxPartySize, confirmationMode }: {
   slug: string;
   slots: string[];
   maxPartySize: number;
+  confirmationMode: BookingConfirmationMode;
 }) {
   const router = useRouter();
   const request = useRef<{ slot: string; id: string } | null>(null);
   const sending = useRef(false);
   const [pending, setPending] = useState(false);
-  const [confirmedSlot, setConfirmedSlot] = useState<string>();
+  const [submitted, setSubmitted] = useState<{ slot: string; status: "pending" | "confirmed" }>();
   const [error, setError] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,7 +33,7 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize }: {
     try {
       if (request.current?.slot !== slot) request.current = { slot, id: crypto.randomUUID() };
       const result = await reserveVisitorSlot(slug, request.current.id, form);
-      if (result.success) setConfirmedSlot(slot);
+      if (result.success) setSubmitted({ slot, status: result.status });
       else {
         setError(result.message);
         if (result.refresh) router.refresh();
@@ -44,11 +46,18 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize }: {
     }
   }
 
-  if (confirmedSlot) {
+  if (submitted) {
+    const confirmed = submitted.status === "confirmed";
     return (
-      <section role="status" className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950">
-        <h2 className="text-xl font-semibold">Appuntamento confermato</h2>
-        <p className="mt-2 capitalize">{appointment.format(new Date(confirmedSlot))}</p>
+      <section
+        role="status"
+        className={confirmed
+          ? "rounded-xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950"
+          : "rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950"}
+      >
+        <h2 className="text-xl font-semibold">{confirmed ? "Appuntamento confermato" : "In attesa di conferma"}</h2>
+        <p className="mt-2 capitalize">{appointment.format(new Date(submitted.slot))}</p>
+        {!confirmed && <p className="mt-2 text-sm">La richiesta è stata inviata. Il gestore deve ancora confermare l’appuntamento.</p>}
       </section>
     );
   }
@@ -84,7 +93,7 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize }: {
             </label>
           ) : <input type="hidden" name="people" value="1" />}
           <button type="submit" className="rounded-lg bg-emerald-800 px-5 py-3 font-semibold text-white disabled:opacity-50">
-            {pending ? "Prenotazione in corso…" : "Conferma appuntamento"}
+            {pending ? "Invio in corso…" : confirmationMode === "automatic" ? "Prenota appuntamento" : "Invia richiesta"}
           </button>
         </fieldset>
       ) : <p className="text-gray-700">Nessun orario disponibile per questa data. Prova un altro giorno.</p>}

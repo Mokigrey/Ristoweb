@@ -6,7 +6,10 @@ import { isShowcaseSlug, showcasePath } from "@/lib/showcase-address";
 
 const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 
-export async function reserveVisitorSlot(slug: string, requestId: string, form: FormData) {
+type BookingResult = { success: true; status: "pending" | "confirmed" }
+  | { success: false; refresh: boolean; message: string };
+
+export async function reserveVisitorSlot(slug: string, requestId: string, form: FormData): Promise<BookingResult> {
   const name = String(form.get("name") ?? "").trim();
   const phone = String(form.get("phone") ?? "").trim();
   const email = String(form.get("email") ?? "").trim();
@@ -29,9 +32,9 @@ export async function reserveVisitorSlot(slug: string, requestId: string, form: 
     p_email: email || null,
     p_party_size: partySize,
   });
-  if (data === "confirmed" && !error) {
+  if ((data === "pending" || data === "confirmed") && !error) {
     revalidatePath(showcasePath(slug) + "/prenota");
-    return { success: true, refresh: false, message: "Appuntamento confermato." };
+    return { success: true, status: data };
   }
   if (data === "unavailable" || error?.code === "23P01") {
     return { success: false, refresh: true, message: "L’orario non è più disponibile. Scegline un altro." };

@@ -23,7 +23,7 @@ Per inviare conferme a destinatari esterni all’organizzazione Supabase serve u
 - Registrazione con verifica email e creazione autonoma di una vetrina in bozza.
 - Selezione dei moduli e stima del piano prima del checkout. Le scelte in bozza sono separate dai moduli attivi.
 - Menu digitale opzionale, stima del canone e disattivazioni programmate al rinnovo.
-- Prenotazioni manuali dal pannello e appuntamenti online con conferma immediata sulle vetrine che abilitano il modulo e gli appuntamenti pubblici.
+- Prenotazioni dal pannello e appuntamenti online. Il gestore può scegliere la conferma manuale o automatica, con quella manuale come predefinita.
 
 I rinnovi vengono registrati dall’amministratore. L’attivazione del primo abbonamento è predisposta nel database. Resta da collegare il checkout e il servizio che verifica la conferma del pagamento.
 

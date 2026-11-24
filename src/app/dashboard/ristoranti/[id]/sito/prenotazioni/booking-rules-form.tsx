@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import type { BookingConfirmationMode } from "@/lib/public-bookings";
 import { saveBookingRules } from "./actions";
 
 const defaultBookingRules = {
@@ -10,6 +11,7 @@ const defaultBookingRules = {
   notice_minutes: 60,
   horizon_days: 14,
   max_party_size: 1,
+  confirmation_mode: "manual" as BookingConfirmationMode,
 };
 
 const inputStyle = "mt-1 block w-full rounded-lg border border-gray-400 px-3 py-2 font-normal";
@@ -33,7 +35,7 @@ export default function BookingRulesForm({ tenantId, hoursHref, rules }: {
   return (
     <form action={action} className="mt-4 space-y-4">
       <p className="text-sm text-gray-700">
-        Gli appuntamenti usano le fasce di <Link href={hoursHref} className="font-medium text-emerald-800 underline">Orari e social</Link> e vengono confermati quando lo slot è libero.
+        Gli appuntamenti usano le fasce di <Link href={hoursHref} className="font-medium text-emerald-800 underline">Orari e social</Link>.
       </p>
       <fieldset disabled={pending} className="grid gap-4 sm:grid-cols-2">
         <legend className="sr-only">Disponibilità degli appuntamenti</legend>
@@ -41,6 +43,20 @@ export default function BookingRulesForm({ tenantId, hoursHref, rules }: {
           <input type="checkbox" name="enabled" defaultChecked={settings.enabled} />
           Accetta appuntamenti dalla vetrina pubblicata
         </label>
+        <div className="sm:col-span-2">
+          <label className="font-medium">Modalità di conferma
+            <select
+              name="confirmation_mode" defaultValue={settings.confirmation_mode} className={inputStyle}
+              aria-describedby="booking-confirmation-help"
+            >
+              <option value="manual">Manuale</option>
+              <option value="automatic">Automatica</option>
+            </select>
+          </label>
+          <p id="booking-confirmation-help" className="mt-1 text-sm text-gray-600">
+            Con la conferma manuale, decidi dal pannello se accettare o rifiutare. Con quella automatica, la richiesta viene confermata subito.
+          </p>
+        </div>
         <label className="font-medium">Durata appuntamento
           <select name="duration_minutes" defaultValue={settings.duration_minutes} className={inputStyle}>
             {[15, 30, 45, 60, 90, 120].map((n) => <option key={n} value={n}>{n} minuti</option>)}

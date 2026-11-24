@@ -1,6 +1,8 @@
 import { isBillingDate } from "@/lib/supabase/billing-cycle";
 import { createPublicClient } from "@/lib/supabase/public-client";
 
+export type BookingConfirmationMode = "manual" | "automatic";
+
 type BookingCalendar = {
   name: string;
   firstDay: string;
@@ -8,6 +10,7 @@ type BookingCalendar = {
   selectedDay: string;
   durationMinutes: number;
   maxPartySize: number;
+  confirmationMode: BookingConfirmationMode;
   slots: string[];
 };
 

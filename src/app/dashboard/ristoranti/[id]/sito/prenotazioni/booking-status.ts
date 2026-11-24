@@ -1,5 +1,5 @@
 export const bookingStatuses = {
-  pending: "Da valutare",
+  pending: "In attesa di conferma",
   confirmed: "Confermate",
   declined: "Rifiutate",
   cancelled: "Annullate",

@@ -38,7 +38,7 @@ export default async function BookingsPage({ params, searchParams }: {
       .select("id, customer_name, customer_phone, customer_email, party_size, requested_at, notes, management_note, status, slot_ends_at", { count: "exact" })
       .eq("tenant_id", id).eq("status", status)
       .order("requested_at", { ascending: status === "pending" }).order("id").range(start, start + perPage - 1),
-    supabase.from("booking_rules").select("enabled, duration_minutes, notice_minutes, horizon_days, max_party_size")
+    supabase.from("booking_rules").select("enabled, duration_minutes, notice_minutes, horizon_days, max_party_size, confirmation_mode")
       .eq("tenant_id", id).maybeSingle(),
   ]);
   const { data, count } = list;
