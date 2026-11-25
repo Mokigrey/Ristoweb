@@ -1,5 +1,5 @@
 import { getSiteAccess } from "@/lib/supabase/site-access";
-import { digitalMenuModule, isSiteModuleEnabled } from "@/lib/supabase/site-modules";
+import { getEnabledSiteModules, siteModulePanels } from "@/lib/supabase/site-modules";
 
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
@@ -49,7 +49,7 @@ export default async function GestioneSitoPage({
   }
 
   const isPlatformAdmin = access === "platform";
-  const mostraMenu = await isSiteModuleEnabled(supabase, id, digitalMenuModule);
+  const enabledModules = await getEnabledSiteModules(supabase, id);
   const isDraftPlan = !ristorante.is_published && ristorante.plan_type === "subscription" && ristorante.subscription_status === "trialing";
   const sitePath = `/dashboard/ristoranti/${id}/sito`;
   const hasSiteImage = [settings?.logo_path, settings?.hero_image_path]
@@ -75,13 +75,11 @@ export default async function GestioneSitoPage({
         "Nome pubblico, slogan, descrizione, indirizzo, telefono ed email.",
       percorso: `/dashboard/ristoranti/${id}/sito/informazioni`,
     },
-    {
-      titolo: "Menu e prodotti",
-      descrizione:
-        "Categorie, pizze, piatti, prezzi e descrizioni.",
-      percorso: `/dashboard/ristoranti/${id}/sito/menu`,
-      visibile: mostraMenu,
-    },
+    ...siteModulePanels.filter(({ key }) => enabledModules.has(key)).map((module) => ({
+      titolo: module.label,
+      descrizione: module.description,
+      percorso: sitePath + module.path,
+    })),
     {
       titolo: "Immagini del sito",
       descrizione:
