@@ -2,6 +2,8 @@
 
 Piattaforma Next.js e Supabase per configurare e gestire vetrine di attività di settori diversi. Il pannello distingue l’amministrazione della piattaforma dai gestori delle singole attività.
 
+Consulta lo [schema dei ruoli, dei flussi e del catalogo moduli](docs/architettura-selfweb.md).
+
 ## Avvio
 
 1. Usa un progetto Supabase di sviluppo. Configura la CLI Supabase e applica le migrazioni in `supabase/migrations` in ordine. Per un progetto già popolato, confronta lo schema e lo storico delle migrazioni prima di procedere.
