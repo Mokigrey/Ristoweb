@@ -48,18 +48,18 @@ export default async function BookingsPage({ params, searchParams }: {
   if (page > lastPage) redirect(`${queuePath}?stato=${status}&pagina=${lastPage}`);
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-8">
+    <main className="px-4 py-6 sm:px-8 sm:py-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <Link href={sitePath} className="text-emerald-800 hover:underline">← Gestione sito</Link>
-        <h1 className="text-3xl font-bold text-gray-900">Prenotazioni</h1>
-        <details className="rounded-xl border border-gray-200 bg-white p-5">
-          <summary className="cursor-pointer font-semibold text-emerald-900">
+        <Link href={sitePath} className="text-selfweb-action hover:underline">← Gestione sito</Link>
+        <h1 className="rounded-2xl bg-selfweb-hero px-5 py-8 text-3xl font-bold tracking-tight text-white sm:px-8 sm:text-4xl">Prenotazioni</h1>
+        <details className="rounded-xl border border-selfweb-border bg-white p-5">
+          <summary className="cursor-pointer font-semibold text-selfweb-ink">
             Appuntamenti online · {config.data?.enabled ? "Attivi" : "Disattivati"}
           </summary>
           <BookingRulesForm tenantId={id} hoursHref={sitePath + "/orari"} rules={config.data} />
         </details>
-        <details className="rounded-xl border border-gray-200 bg-white p-5">
-          <summary className="cursor-pointer font-semibold text-emerald-900">Registra una richiesta</summary>
+        <details className="rounded-xl border border-selfweb-border bg-white p-5">
+          <summary className="cursor-pointer font-semibold text-selfweb-ink">Registra una richiesta</summary>
           <ManualBookingForm tenantId={id} />
         </details>
         <nav aria-label="Stato delle prenotazioni" className="flex flex-wrap gap-2">
@@ -67,8 +67,8 @@ export default async function BookingsPage({ params, searchParams }: {
             <Link
               key={key} href={`${queuePath}?stato=${key}`} aria-current={key === status ? "page" : undefined}
               className={key === status
-                ? "rounded-full bg-emerald-900 px-4 py-2 text-sm font-semibold text-white"
-                : "rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"}
+                ? "inline-flex min-h-11 items-center rounded-full bg-selfweb-action px-4 py-2 text-sm font-semibold text-white"
+                : "inline-flex min-h-11 items-center rounded-full border border-selfweb-border bg-white px-4 py-2 text-sm font-medium text-selfweb-ink hover:bg-selfweb-accent"}
             >
               {label}
             </Link>
@@ -77,7 +77,7 @@ export default async function BookingsPage({ params, searchParams }: {
         {data.length ? (
           <ul className="space-y-3">
             {data.map((booking) => (
-              <li key={booking.id} className="rounded-xl border border-gray-200 bg-white p-5">
+              <li key={booking.id} className="rounded-xl border border-selfweb-border bg-white p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <h2 className="text-xl font-semibold text-gray-900">{booking.customer_name}</h2>
                   <time dateTime={booking.requested_at} className="text-sm font-medium text-gray-700">
@@ -98,7 +98,7 @@ export default async function BookingsPage({ params, searchParams }: {
             ))}
           </ul>
         ) : (
-          <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">Nessuna richiesta in questo stato.</p>
+          <p className="rounded-xl border border-selfweb-border bg-white p-5 text-gray-700">Nessuna richiesta in questo stato.</p>
         )}
         {lastPage > 1 && (
           <nav aria-label="Pagine delle prenotazioni" className="flex flex-wrap items-center gap-4 text-sm">

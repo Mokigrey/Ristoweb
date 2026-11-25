@@ -34,7 +34,7 @@ export default async function SitoLayout({ children, params }: {
     { label: "Orari e social", href: `${base}/orari` },
     { label: "Aspetto", href: `${base}/aspetto` },
     ...(enabledModules.has(digitalMenuModule) ? [{ label: "Menu digitale", href: `${base}/menu` }] : []),
-    ...(enabledModules.has(bookingsModule) ? [{ label: "Prenotazioni", href: `${base}/prenotazioni` }] : []),
+    ...(enabledModules.has(bookingsModule) ? [{ label: "Prenotazioni", href: `${base}/prenotazioni`, mobilePrimary: true }] : []),
     { label: "Moduli", href: `${base}/moduli` },
     ...(toDraftPlan ? [{ label: "Piano della bozza", href: `${base}/piano` }] : []),
     { label: "Canone mensile", href: `${base}/canone` },

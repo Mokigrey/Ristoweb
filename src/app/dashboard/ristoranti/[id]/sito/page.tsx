@@ -118,30 +118,30 @@ export default async function GestioneSitoPage({
   ].filter((sezione) => sezione.visibile !== false);
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6 md:p-8">
+    <main className="px-4 py-6 sm:px-8 sm:py-8">
       <div className="mx-auto max-w-5xl">
         <Link
           href={isPlatformAdmin ? `/dashboard/ristoranti/${id}` : "/cliente"}
-          className="text-emerald-700 hover:underline"
+          className="text-selfweb-action hover:underline"
         >
           ← {isPlatformAdmin ? "Torna alla scheda attività" : "Torna ai tuoi siti"}
         </Link>
 
-        <div className="mt-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="my-6 rounded-2xl bg-selfweb-hero px-5 py-8 text-white sm:px-8">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Gestisci sito web
           </h1>
 
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 break-words text-selfweb-accent">
             {ristorante.name}
           </p>
           {!isDraftPlan && (
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href={sitePath + "/anteprima"} className="rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white hover:bg-emerald-800">
+              <Link href={sitePath + "/anteprima"} className="rounded-lg bg-selfweb-accent px-5 py-3 font-medium text-selfweb-ink hover:bg-teal-50">
                 Apri anteprima
               </Link>
               {ristorante.is_published && (
-                <Link href={showcaseSubdomainUrl(ristorante.slug) ?? showcasePath(ristorante.slug)} className="rounded-lg border border-emerald-800 px-5 py-3 font-medium text-emerald-800">
+                <Link href={showcaseSubdomainUrl(ristorante.slug) ?? showcasePath(ristorante.slug)} className="rounded-lg border border-white/50 px-5 py-3 font-medium hover:bg-white/10">
                   Apri la vetrina pubblica
                 </Link>
               )}
@@ -159,7 +159,7 @@ export default async function GestioneSitoPage({
           />
         )}
 
-        <section className="mb-8 rounded-xl bg-white p-6 shadow">
+        <section className="mb-8 rounded-xl border border-selfweb-border bg-white p-5 sm:p-6">
           <h2 className="text-xl font-semibold text-gray-900">
             Riepilogo del sito
           </h2>
@@ -221,7 +221,7 @@ export default async function GestioneSitoPage({
           {sezioni.map((sezione) => (
             <div
               key={sezione.titolo}
-              className="rounded-xl bg-white p-6 shadow"
+              className="rounded-xl border border-selfweb-border bg-white p-5 sm:p-6"
             >
               <h3 className="text-lg font-semibold text-gray-900">
                 {sezione.titolo}
@@ -233,7 +233,7 @@ export default async function GestioneSitoPage({
 
               <Link
                 href={sezione.percorso}
-                className="mt-5 inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+                className="mt-5 inline-flex rounded-lg bg-selfweb-action px-4 py-2 text-sm font-medium text-white hover:bg-selfweb-hero"
               >
                 Gestisci
               </Link>

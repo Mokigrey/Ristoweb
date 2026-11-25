@@ -9,6 +9,10 @@ Piattaforma Next.js e Supabase per configurare e gestire vetrine di attività di
 3. Con Node.js e pnpm disponibili, esegui `pnpm install --frozen-lockfile` e `pnpm dev`.
 4. Apri `http://localhost:3000/login`. Gli account vengono creati con Supabase Auth e associati a `platform_members` per l’amministrazione o a `tenant_members` per la gestione di un’attività.
 
+## Interfaccia
+
+Tailwind CSS è lo standard dell’interfaccia di Selfweb. Usa le utility responsive con un approccio mobile-first e riutilizza la palette `selfweb` definita in `tailwind.config.ts`. I pannelli usano la navigazione condivisa di `WorkspaceShell`. I template delle vetrine pubbliche mantengono stili dedicati alla propria identità visiva.
+
 ## Registrazione e conferma email
 
 Mantieni attiva la conferma email in Supabase Auth. Aggiungi alle URL di reindirizzamento autorizzate il percorso `/auth/conferma` per ogni origine dell’app, ad esempio `http://localhost:3000/auth/conferma` in sviluppo. Il template di conferma deve usare `{{ .ConfirmationURL }}`. L’utente apre il link nello stesso browser usato per registrarsi, quindi arriva alla creazione della prima bozza.
