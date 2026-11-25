@@ -2,20 +2,21 @@
 
 import { createPublicClient } from "@/lib/supabase/public-client";
 import { isShowcaseSlug } from "@/lib/showcase-address";
-
-const referenceFormat = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+import { isBookingId } from "@/lib/booking-services";
 
 type BookingState = {
   status: "pending" | "confirmed" | "declined" | "cancelled";
   canCancel: boolean;
   startsAt: string;
   name: string;
+  serviceName?: string | null;
+  durationMinutes?: number | null;
 };
 
 async function requestBookingState(rpc: "selfweb_public_booking_status" | "selfweb_cancel_public_booking",
   slug: string, reference: string,
 ): Promise<BookingState | null> {
-  if (!isShowcaseSlug(slug) || !referenceFormat.test(reference)) return null;
+  if (!isShowcaseSlug(slug) || !isBookingId(reference)) return null;
   const client = createPublicClient();
   const { data, error } = await client.rpc(rpc, {
     p_slug: slug,

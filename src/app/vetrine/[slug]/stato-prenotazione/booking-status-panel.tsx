@@ -61,15 +61,28 @@ export default function BookingStatusPanel({ slug }: { slug: string }) {
   }
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
+    <section className="space-y-5 rounded-3xl border border-selfweb-border bg-white p-5 shadow-sm shadow-teal-950/5 sm:p-6">
       <div role="status">
         {pending ? <p>Sto controllando lo stato…</p> : error ? (
           <p>Impossibile controllare lo stato in questo momento. Riprova.</p>
         ) : result ? (
           <>
-            <h2 className="text-xl font-semibold text-emerald-950">{labels[result.status]}</h2>
-            <p className="mt-2">{result.name}</p>
-            <p className="capitalize text-gray-700">{appointment.format(new Date(result.startsAt))} · Ora italiana</p>
+            <h2 className="text-xl font-bold tracking-tight">{labels[result.status]}</h2>
+            <p className="mt-2 break-words text-slate-700">{result.name}</p>
+            <dl className="mt-4 grid gap-4 rounded-2xl bg-selfweb-canvas p-4 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm font-medium text-slate-600">Quando</dt>
+                <dd className="mt-1 font-semibold capitalize">{appointment.format(new Date(result.startsAt))}</dd>
+                <dd className="mt-1 text-sm text-slate-600">Ora italiana</dd>
+              </div>
+              {(result.serviceName || result.durationMinutes) && (
+                <div>
+                  <dt className="text-sm font-medium text-slate-600">{result.serviceName ? "Servizio" : "Durata"}</dt>
+                  {result.serviceName && <dd className="mt-1 break-words font-semibold">{result.serviceName}</dd>}
+                  {result.durationMinutes && <dd className="mt-1">{result.durationMinutes} minuti</dd>}
+                </div>
+              )}
+            </dl>
           </>
         ) : <p>Prenotazione non disponibile. Apri il link che hai ricevuto dopo l’invio.</p>}
       </div>
@@ -88,7 +101,7 @@ export default function BookingStatusPanel({ slug }: { slug: string }) {
         </div>
       ) : (
         <div className="flex flex-wrap gap-3">
-          <button type="button" disabled={pending} onClick={refresh} className="rounded-lg border border-emerald-800 px-4 py-2 font-medium text-emerald-900 disabled:opacity-50">
+          <button type="button" disabled={pending} onClick={refresh} className="min-h-11 rounded-xl border border-selfweb-action px-4 py-2 font-semibold text-selfweb-action hover:bg-selfweb-canvas disabled:opacity-50">
             Aggiorna stato
           </button>
           {!pending && !error && result?.canCancel && (

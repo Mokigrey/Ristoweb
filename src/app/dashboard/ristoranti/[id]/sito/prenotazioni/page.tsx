@@ -3,11 +3,13 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteAccess } from "@/lib/supabase/site-access";
 import { bookingsModule, isSiteModuleEnabled } from "@/lib/supabase/site-modules";
+import { isBookingId } from "@/lib/booking-services";
 import BookingControls from "./booking-controls";
-import { bookingStatuses, isBookingStatus } from "./booking-status";
+import { bookingStatuses, isBookingStatus, type BookingStatus } from "./booking-status";
 import ManualBookingForm from "./manual-booking-form";
 import BookingRulesForm from "./booking-rules-form";
 import BookingServiceForm from "./booking-service-form";
+import BookingServiceFilter from "./booking-service-filter";
 
 const perPage = 20;
 const bookingDate = new Intl.DateTimeFormat("it-IT", {
@@ -18,11 +20,12 @@ const bookingDate = new Intl.DateTimeFormat("it-IT", {
 
 export default async function BookingsPage({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ stato?: string | string[]; pagina?: string | string[] }>;
+  searchParams: Promise<{ stato?: string | string[]; pagina?: string | string[]; servizio?: string | string[] }>;
 }) {
   const { id } = await params;
   const filters = await searchParams;
   const status = isBookingStatus(filters.stato) ? filters.stato : "pending";
+  const service = filters.servizio === "senza-servizio" || isBookingId(filters.servizio) ? filters.servizio : undefined;
   const supabase = await createClient();
   const access = await getSiteAccess(supabase, id);
   if (access === "signed-out") redirect("/login");
@@ -30,14 +33,24 @@ export default async function BookingsPage({ params, searchParams }: {
 
   const sitePath = `/dashboard/ristoranti/${id}/sito`;
   const queuePath = sitePath + "/prenotazioni";
+  const queueHref = (nextStatus: BookingStatus, nextPage?: number) => {
+    const query = new URLSearchParams({ stato: nextStatus });
+    if (service) query.set("servizio", service);
+    if (nextPage) query.set("pagina", String(nextPage));
+    return queuePath + "?" + query.toString();
+  };
   const requestedPage = Number(filters.pagina ?? "1");
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= Math.floor(2_147_483_647 / perPage)
     ? requestedPage : 1;
   const start = (page - 1) * perPage;
+  const bookings = supabase.from("bookings")
+    .select("id, customer_name, customer_phone, customer_email, party_size, requested_at, notes, management_note, status, slot_ends_at, booking_service_name", { count: "exact" })
+    .eq("tenant_id", id).eq("status", status);
+  if (service === "senza-servizio") bookings.is("booking_service_id", null);
+  else if (service) bookings.eq("booking_service_id", service);
+
   const [list, config, services] = await Promise.all([
-    supabase.from("bookings")
-      .select("id, customer_name, customer_phone, customer_email, party_size, requested_at, notes, management_note, status, slot_ends_at, booking_service_name", { count: "exact" })
-      .eq("tenant_id", id).eq("status", status)
+    bookings
       .order("requested_at", { ascending: status === "pending" }).order("id").range(start, start + perPage - 1),
     supabase.from("booking_rules").select("enabled, duration_minutes, notice_minutes, horizon_days, max_party_size, confirmation_mode")
       .eq("tenant_id", id).maybeSingle(),
@@ -48,7 +61,7 @@ export default async function BookingsPage({ params, searchParams }: {
   if (list.error || config.error || services.error || count === null) throw new Error("Impossibile caricare le prenotazioni.");
 
   const lastPage = Math.max(1, Math.ceil(count / perPage));
-  if (page > lastPage) redirect(`${queuePath}?stato=${status}&pagina=${lastPage}`);
+  if (page > lastPage) redirect(queueHref(status, lastPage));
 
   return (
     <main className="px-4 py-6 sm:px-8 sm:py-8">
@@ -74,17 +87,20 @@ export default async function BookingsPage({ params, searchParams }: {
           <ManualBookingForm tenantId={id} />
         </details>
         <nav aria-label="Stato delle prenotazioni" className="flex flex-wrap gap-2">
-          {Object.entries(bookingStatuses).map(([key, label]) => (
+          {Object.keys(bookingStatuses).filter(isBookingStatus).map((key) => (
             <Link
-              key={key} href={`${queuePath}?stato=${key}`} aria-current={key === status ? "page" : undefined}
+              key={key} href={queueHref(key)} aria-current={key === status ? "page" : undefined}
               className={key === status
                 ? "inline-flex min-h-11 items-center rounded-full bg-selfweb-action px-4 py-2 text-sm font-semibold text-white"
                 : "inline-flex min-h-11 items-center rounded-full border border-selfweb-border bg-white px-4 py-2 text-sm font-medium text-selfweb-ink hover:bg-selfweb-accent"}
             >
-              {label}
+              {bookingStatuses[key]}
             </Link>
           ))}
         </nav>
+        {(services.data.length > 0 || service) && (
+          <BookingServiceFilter queuePath={queuePath} status={status} selected={service} services={services.data} />
+        )}
         {data.length ? (
           <ul className="space-y-3">
             {data.map((booking) => (
@@ -110,13 +126,15 @@ export default async function BookingsPage({ params, searchParams }: {
             ))}
           </ul>
         ) : (
-          <p className="rounded-xl border border-selfweb-border bg-white p-5 text-gray-700">Nessuna richiesta in questo stato.</p>
+          <p className="rounded-xl border border-selfweb-border bg-white p-5 text-gray-700">
+            {service ? "Nessuna richiesta per il servizio e lo stato selezionati." : "Nessuna richiesta in questo stato."}
+          </p>
         )}
         {lastPage > 1 && (
           <nav aria-label="Pagine delle prenotazioni" className="flex flex-wrap items-center gap-4 text-sm">
-            {page > 1 && <Link className="text-emerald-800 underline" href={`${queuePath}?stato=${status}&pagina=${page - 1}`}>Precedente</Link>}
+            {page > 1 && <Link className="text-selfweb-action underline" href={queueHref(status, page - 1)}>Precedente</Link>}
             <span>Pagina {page} di {lastPage}</span>
-            {page < lastPage && <Link className="text-emerald-800 underline" href={`${queuePath}?stato=${status}&pagina=${page + 1}`}>Successiva</Link>}
+            {page < lastPage && <Link className="text-selfweb-action underline" href={queueHref(status, page + 1)}>Successiva</Link>}
           </nav>
         )}
       </div>
