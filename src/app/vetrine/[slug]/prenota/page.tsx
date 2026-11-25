@@ -17,11 +17,13 @@ export default async function PublicBookingPage({ params, searchParams }: {
   const { data } = await searchParams;
   const calendar = await loadPublicBookingCalendar(slug, data);
   if (!calendar) notFound();
+  const publicUrl = showcaseSubdomainUrl(slug);
+  const statusPath = publicUrl ? new URL("stato-prenotazione", publicUrl).href : showcasePath(slug) + "/stato-prenotazione";
 
   return (
     <main className="min-h-screen bg-emerald-50 px-4 py-8 sm:px-8">
       <div className="mx-auto max-w-2xl space-y-5">
-        <Link href={showcaseSubdomainUrl(slug) ?? showcasePath(slug)} className="font-medium text-emerald-900 underline">
+        <Link href={publicUrl ?? showcasePath(slug)} className="font-medium text-emerald-900 underline">
           ← Torna alla vetrina
         </Link>
         <header>
@@ -43,7 +45,7 @@ export default async function PublicBookingPage({ params, searchParams }: {
         </form>
         <VisitorBookingForm
           key={calendar.selectedDay} slug={slug} slots={calendar.slots}
-          maxPartySize={calendar.maxPartySize} confirmationMode={calendar.confirmationMode}
+          maxPartySize={calendar.maxPartySize} confirmationMode={calendar.confirmationMode} statusPath={statusPath}
         />
       </div>
     </main>

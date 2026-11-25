@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { BookingConfirmationMode } from "@/lib/public-bookings";
 import { reserveVisitorSlot } from "./actions";
 
@@ -9,18 +9,21 @@ const hour = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digi
 const appointment = new Intl.DateTimeFormat("it-IT", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Rome" });
 const inputStyle = "mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal text-gray-900";
 
-export default function VisitorBookingForm({ slug, slots, maxPartySize, confirmationMode }: {
+export default function VisitorBookingForm({ slug, slots, maxPartySize, confirmationMode, statusPath }: {
   slug: string;
   slots: string[];
   maxPartySize: number;
   confirmationMode: BookingConfirmationMode;
+  statusPath: string;
 }) {
   const router = useRouter();
   const request = useRef<{ slot: string; id: string } | null>(null);
   const sending = useRef(false);
   const [pending, setPending] = useState(false);
-  const [submitted, setSubmitted] = useState<{ slot: string; status: "pending" | "confirmed" }>();
+  const [ready, setReady] = useState(false);
+  const [submitted, setSubmitted] = useState<{ slot: string; status: "pending" | "confirmed"; id: string }>();
   const [error, setError] = useState("");
+  useEffect(() => { setReady(true); }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,8 +35,9 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize, confirma
     setError("");
     try {
       if (request.current?.slot !== slot) request.current = { slot, id: crypto.randomUUID() };
-      const result = await reserveVisitorSlot(slug, request.current.id, form);
-      if (result.success) setSubmitted({ slot, status: result.status });
+      const requestId = request.current.id;
+      const result = await reserveVisitorSlot(slug, requestId, form);
+      if (result.success) setSubmitted({ slot, status: result.status, id: requestId });
       else {
         setError(result.message);
         if (result.refresh) router.refresh();
@@ -58,12 +62,16 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize, confirma
         <h2 className="text-xl font-semibold">{confirmed ? "Appuntamento confermato" : "In attesa di conferma"}</h2>
         <p className="mt-2 capitalize">{appointment.format(new Date(submitted.slot))}</p>
         {!confirmed && <p className="mt-2 text-sm">La richiesta è stata inviata. Il gestore deve ancora confermare l’appuntamento.</p>}
+        <p className="mt-3 text-sm">
+          Conserva questo link per controllare l’esito anche in seguito.
+        </p>
+        <a href={statusPath + "#" + submitted.id} className="mt-2 inline-block font-semibold underline">Controlla lo stato</a>
       </section>
     );
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-xl border border-gray-200 bg-white p-5 sm:p-6">
+    <form method="post" onSubmit={submit} className="space-y-5 rounded-xl border border-gray-200 bg-white p-5 sm:p-6">
       {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
       {slots.length ? (
         <fieldset disabled={pending} className="space-y-4">
@@ -92,7 +100,7 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize, confirma
               <input name="people" type="number" min={1} max={maxPartySize} defaultValue={1} required className={inputStyle} />
             </label>
           ) : <input type="hidden" name="people" value="1" />}
-          <button type="submit" className="rounded-lg bg-emerald-800 px-5 py-3 font-semibold text-white disabled:opacity-50">
+          <button type="submit" disabled={!ready} className="rounded-lg bg-emerald-800 px-5 py-3 font-semibold text-white disabled:opacity-50">
             {pending ? "Invio in corso…" : confirmationMode === "automatic" ? "Prenota appuntamento" : "Invia richiesta"}
           </button>
         </fieldset>
