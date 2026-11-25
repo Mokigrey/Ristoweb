@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isBookingStatus, type BookingStatus } from "./booking-status";
+import { isAppointmentDuration, isBookingId } from "@/lib/booking-services";
 
 function bookingsPath(tenantId: string) {
   return `/dashboard/ristoranti/${tenantId}/sito/prenotazioni`;
@@ -71,7 +72,7 @@ export async function saveBookingRules(tenantId: string, form: FormData) {
   const horizon_days = Number(form.get("horizon_days"));
   const max_party_size = Number(form.get("max_party_size"));
   const confirmation_mode = form.get("confirmation_mode");
-  if (![15, 30, 45, 60, 90, 120].includes(duration_minutes)
+  if (!isAppointmentDuration(duration_minutes)
     || ![0, 60, 120, 240, 1440].includes(notice_minutes) || ![7, 14, 30, 60].includes(horizon_days)
     || !Number.isInteger(max_party_size) || max_party_size < 1 || max_party_size > 30
     || (confirmation_mode !== "manual" && confirmation_mode !== "automatic")) {
@@ -86,4 +87,24 @@ export async function saveBookingRules(tenantId: string, form: FormData) {
   if (error || !data) return { success: false, message: "Impossibile salvare le impostazioni." };
   revalidatePath(bookingsPath(tenantId));
   return { success: true, message: "Impostazioni salvate." };
+}
+
+export async function saveBookingService(tenantId: string, serviceId: string | null, form: FormData) {
+  const name = String(form.get("name") ?? "").trim();
+  const duration_minutes = Number(form.get("duration_minutes"));
+  const values = { name, duration_minutes, enabled: form.get("enabled") === "on" };
+  if (!isBookingId(tenantId) || (serviceId !== null && !isBookingId(serviceId))
+    || !name || name.length > 100 || !isAppointmentDuration(duration_minutes)) {
+    return { success: false, message: "Verifica il nome e la durata del servizio." };
+  }
+  const supabase = await createClient();
+  const services = supabase.from("booking_services");
+  const update = serviceId
+    ? services.update(values).eq("tenant_id", tenantId).eq("id", serviceId)
+    : services.insert({ tenant_id: tenantId, ...values });
+  const { data, error } = await update.select("id").maybeSingle();
+  if (error || !data) return { success: false, message: "Impossibile salvare il servizio." };
+
+  revalidatePath(bookingsPath(tenantId));
+  return { success: true, message: serviceId ? "Servizio aggiornato." : "Servizio aggiunto." };
 }

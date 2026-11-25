@@ -9,12 +9,15 @@ const hour = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digi
 const appointment = new Intl.DateTimeFormat("it-IT", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Rome" });
 const inputStyle = "mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal text-gray-900";
 
-export default function VisitorBookingForm({ slug, slots, maxPartySize, confirmationMode, statusPath }: {
+export default function VisitorBookingForm({ slug, slots, maxPartySize, confirmationMode, statusPath, serviceId, serviceName, durationMinutes }: {
   slug: string;
   slots: string[];
   maxPartySize: number;
   confirmationMode: BookingConfirmationMode;
   statusPath: string;
+  serviceId: string | null;
+  serviceName?: string;
+  durationMinutes: number;
 }) {
   const router = useRouter();
   const request = useRef<{ slot: string; id: string } | null>(null);
@@ -36,7 +39,7 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize, confirma
     try {
       if (request.current?.slot !== slot) request.current = { slot, id: crypto.randomUUID() };
       const requestId = request.current.id;
-      const result = await reserveVisitorSlot(slug, requestId, form);
+      const result = await reserveVisitorSlot(slug, requestId, serviceId, durationMinutes, form);
       if (result.success) setSubmitted({ slot, status: result.status, id: requestId });
       else {
         setError(result.message);
@@ -60,6 +63,7 @@ export default function VisitorBookingForm({ slug, slots, maxPartySize, confirma
           : "rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950"}
       >
         <h2 className="text-xl font-semibold">{confirmed ? "Appuntamento confermato" : "In attesa di conferma"}</h2>
+        {serviceName && <p className="mt-2 font-medium">{serviceName} · {durationMinutes} minuti</p>}
         <p className="mt-2 capitalize">{appointment.format(new Date(submitted.slot))}</p>
         {!confirmed && <p className="mt-2 text-sm">La richiesta è stata inviata. Il gestore deve ancora confermare l’appuntamento.</p>}
         <p className="mt-3 text-sm">

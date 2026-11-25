@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { appointmentDurations } from "@/lib/booking-services";
 import type { BookingConfirmationMode } from "@/lib/public-bookings";
 import { saveBookingRules } from "./actions";
 
@@ -57,9 +58,9 @@ export default function BookingRulesForm({ tenantId, hoursHref, rules }: {
             Con la conferma manuale, decidi dal pannello se accettare o rifiutare. Con quella automatica, la richiesta viene confermata subito.
           </p>
         </div>
-        <label className="font-medium">Durata appuntamento
+        <label className="font-medium">Durata senza servizi attivi
           <select name="duration_minutes" defaultValue={settings.duration_minutes} className={inputStyle}>
-            {[15, 30, 45, 60, 90, 120].map((n) => <option key={n} value={n}>{n} minuti</option>)}
+            {appointmentDurations.map((n) => <option key={n} value={n}>{n} minuti</option>)}
           </select>
         </label>
         <label className="font-medium">Preavviso minimo
