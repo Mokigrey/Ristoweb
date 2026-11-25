@@ -13,7 +13,7 @@ Consulta lo [schema dei ruoli, dei flussi e del catalogo moduli](docs/architettu
 
 ## Interfaccia
 
-Tailwind CSS è lo standard dell’interfaccia di Selfweb. Usa le utility responsive con un approccio mobile-first e riutilizza la palette `selfweb` definita in `tailwind.config.ts`. I pannelli usano la navigazione condivisa di `WorkspaceShell`. I template delle vetrine pubbliche mantengono stili dedicati alla propria identità visiva.
+Tailwind CSS è obbligatorio per tutta l’interfaccia web di Selfweb, dalle vetrine pubbliche ai pannelli di gestore e supervisor. Usa le utility responsive con un approccio mobile-first e riutilizza i token definiti in `tailwind.config.ts`. I pannelli usano la navigazione condivisa di `WorkspaceShell`. Le indicazioni per componenti, template e schermate esistenti sono nelle [regole di sviluppo](AGENTS.md).
 
 ## Registrazione e conferma email
 
