@@ -3,6 +3,7 @@ import { estimatedMonthlyTotal, formatCents } from "@/lib/billing/estimate";
 import { sectorLabel } from "../../../../site-catalog";
 import { loadDraftPlan } from "../load-draft-plan";
 import CheckoutQuoteForm from "./checkout-quote-form";
+import { stripeTestCheckoutAvailable } from "@/lib/billing/stripe-test-checkout";
 
 export default async function RiepilogoPianoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,6 +16,7 @@ export default async function RiepilogoPianoPage({ params }: { params: Promise<{
   const amounts = lines.map(({ price }) => price);
   const pricedLines = lines.flatMap(({ key, price }) => price === null ? [] : [[key, price] as const]);
   const complete = pricedLines.length === lines.length;
+  const checkoutAvailable = complete && stripeTestCheckoutAvailable() && amounts.some((amount) => amount !== null && amount > 0);
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-8">
@@ -41,9 +43,9 @@ export default async function RiepilogoPianoPage({ params }: { params: Promise<{
         </section>
         <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           {!complete && "Il canone sarà disponibile quando tutte le voci del piano avranno un prezzo. "}
-          Il pagamento sarà disponibile in una fase successiva.
+          {checkoutAvailable ? "Il checkout usa Stripe in modalità di prova." : "Il pagamento sarà disponibile in una fase successiva."}
         </p>
-        {canEdit && complete && <CheckoutQuoteForm tenantId={id} prices={Object.fromEntries(pricedLines)} />}
+        {canEdit && complete && <CheckoutQuoteForm tenantId={id} prices={Object.fromEntries(pricedLines)} checkoutAvailable={checkoutAvailable} />}
         <div className="flex flex-wrap gap-3">
           {canEdit && (
             <Link href={sitePath + "/piano"} className="rounded-lg bg-emerald-700 px-5 py-3 font-medium text-white hover:bg-emerald-800">

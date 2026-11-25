@@ -37,7 +37,9 @@ Il server che gestisce il pagamento deve associare la sessione del fornitore al 
 
 Configura un endpoint Stripe con eventi snapshot `checkout.session.completed` e `checkout.session.async_payment_succeeded` verso `/api/pagamenti/stripe-test`. Imposta le variabili `SELFWEB_STRIPE_TEST_*` con credenziali Stripe di test e una chiave server del progetto Supabase di test. La creazione della sessione deve passare il riepilogo come `client_reference_id` e i metadati `selfweb_flow=initial_checkout`, `selfweb_tenant_id` e `selfweb_quote_id`.
 
-L’endpoint verifica la firma sul messaggio originale, rilegge da Stripe la sessione e la prima fattura pagata in EUR e applica l’attivazione nel database di test. La creazione della sessione di checkout resta da integrare.
+Imposta anche `SELFWEB_STRIPE_TEST_APP_URL` con l’origine dell’app di test. Quando Stripe, Supabase e il listino risultano configurati, il cliente può aprire il checkout di prova dal riepilogo. Gli importi inviati a Stripe provengono dal riepilogo verificato nel database. Il ritorno dal checkout mostra lo stato dell’attivazione.
+
+L’endpoint verifica la firma sul messaggio originale, rilegge da Stripe la sessione e la prima fattura pagata in EUR e applica l’attivazione nel database di test.
 
 ## Indirizzi pubblici delle vetrine
 
