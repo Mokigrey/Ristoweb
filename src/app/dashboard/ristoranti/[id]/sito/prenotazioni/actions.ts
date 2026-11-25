@@ -46,7 +46,7 @@ export async function updateBookingStatus(
   tenantId: string, bookingId: string, expected: BookingStatus, form: FormData,
 ) {
   const next = form.get("status");
-  if (!isBookingStatus(expected) || !isBookingStatus(next)) {
+  if (!isBookingId(tenantId) || !isBookingId(bookingId) || !isBookingStatus(expected) || !isBookingStatus(next)) {
     return { success: false, message: "Stato della prenotazione non valido." };
   }
 
@@ -61,9 +61,16 @@ export async function updateBookingStatus(
   if (error?.code === "23P01") {
     return { success: false, message: "Non puoi confermare la richiesta. C’è già un appuntamento a quell’ora." };
   }
-  return !error && data === true
-    ? { success: true, message: "Stato aggiornato." }
-    : { success: false, message: "Impossibile aggiornare la richiesta. Verifica lo stato corrente." };
+  if (error || data !== true) {
+    return { success: false, message: "Impossibile aggiornare la richiesta. Verifica lo stato corrente." };
+  }
+  const messages = {
+    pending: "Richiesta in attesa di conferma.",
+    confirmed: "Prenotazione confermata.",
+    declined: "Richiesta rifiutata.",
+    cancelled: "Prenotazione annullata.",
+  };
+  return { success: true, message: messages[next] };
 }
 
 export async function saveBookingRules(tenantId: string, form: FormData) {
